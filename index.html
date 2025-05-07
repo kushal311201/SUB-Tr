@@ -52,15 +52,15 @@
                 <form id="subscription-form">
                     <div class="form-group">
                         <label for="subscription-name">Name</label>
-                        <input type="text" id="subscription-name" required>
+                        <input type="text" id="subscription-name" name="subscription-name" required>
                     </div>
                     <div class="form-group">
                         <label for="subscription-amount">Amount</label>
-                        <input type="number" id="subscription-amount" step="0.01" required>
+                        <input type="number" id="subscription-amount" name="subscription-amount" step="0.01" required>
                     </div>
                     <div class="form-group">
                         <label for="subscription-currency">Currency</label>
-                        <select id="subscription-currency" required>
+                        <select id="subscription-currency" name="subscription-currency" required>
                             <option value="USD">USD</option>
                             <option value="EUR">EUR</option>
                             <option value="GBP">GBP</option>
@@ -68,7 +68,7 @@
                     </div>
                     <div class="form-group">
                         <label for="billing-cycle">Billing Cycle</label>
-                        <select id="billing-cycle" required>
+                        <select id="billing-cycle" name="billing-cycle" required>
                             <option value="weekly">Weekly</option>
                             <option value="monthly">Monthly</option>
                             <option value="yearly">Yearly</option>
@@ -76,11 +76,11 @@
                     </div>
                     <div class="form-group">
                         <label for="due-date">Due Date</label>
-                        <input type="date" id="due-date" required>
+                        <input type="date" id="due-date" name="due-date" required>
                     </div>
                     <div class="form-group">
                         <label for="category">Category</label>
-                        <select id="category" required>
+                        <select id="category" name="category" required>
                             <option value="entertainment">Entertainment</option>
                             <option value="utilities">Utilities</option>
                             <option value="software">Software</option>
@@ -89,7 +89,7 @@
                     </div>
                     <div class="form-group">
                         <label for="notes">Notes</label>
-                        <textarea id="notes"></textarea>
+                        <textarea id="notes" name="notes"></textarea>
                     </div>
                     <div class="form-actions">
                         <button type="button" class="btn-secondary" id="cancel-subscription">Cancel</button>
