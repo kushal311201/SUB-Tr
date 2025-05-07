@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Subscription Tracker - Manage and track your subscriptions efficiently">
+    <title>Subscription Tracker</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2196f3">
+    <link rel="icon" href="images/favicon.ico">
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <h1>Subscription Tracker</h1>
+            <button id="theme-toggle" aria-label="Toggle dark mode">
+                <span class="theme-icon">🌙</span>
+            </button>
+        </header>
+
+        <main class="main-content">
+            <section class="subscription-list">
+                <div class="section-header">
+                    <h2>Your Subscriptions</h2>
+                    <button id="add-subscription" class="btn-primary">Add Subscription</button>
+                </div>
+                <div id="subscriptions-container">
+                    <!-- Subscriptions will be dynamically added here -->
+                </div>
+            </section>
+
+            <section class="analytics-dashboard">
+                <h2>Analytics</h2>
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Monthly Overview</h3>
+                        <div id="monthly-chart"></div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Category Breakdown</h3>
+                        <div id="category-chart"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Add Subscription Modal -->
+        <div id="subscription-modal" class="modal">
+            <div class="modal-content">
+                <h2>Add New Subscription</h2>
+                <form id="subscription-form">
+                    <div class="form-group">
+                        <label for="subscription-name">Name</label>
+                        <input type="text" id="subscription-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subscription-amount">Amount</label>
+                        <input type="number" id="subscription-amount" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subscription-currency">Currency</label>
+                        <select id="subscription-currency" required>
+                            <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
+                            <option value="GBP">GBP</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="billing-cycle">Billing Cycle</label>
+                        <select id="billing-cycle" required>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="due-date">Due Date</label>
+                        <input type="date" id="due-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" required>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="utilities">Utilities</option>
+                            <option value="software">Software</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea id="notes"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancel-subscription">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Subscription</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/app.js" type="module"></script>
+    <script src="js/db.js" type="module"></script>
+    <script src="js/ui.js" type="module"></script>
+    <script src="js/notifications.js" type="module"></script>
+    <script src="js/analytics.js" type="module"></script>
+</body>
+</html> 
