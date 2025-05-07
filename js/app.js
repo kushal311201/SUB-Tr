@@ -1,8 +1,9 @@
 // Import modules
-import { initializeDB } from './db.js';
-import { initializeUI } from './ui.js';
+import { initializeDB, openDB, addSubscription, getAllSubscriptions } from './db.js';
+import { initializeUI, updateUI } from './ui.js';
 import { initializeNotifications } from './notifications.js';
 import { initializeAnalytics } from './analytics.js';
+import { ErrorTypes, errorHandler } from './utils/error-handler.js';
 
 // App state
 const state = {
@@ -18,7 +19,7 @@ async function initializeApp() {
         await initializeDB();
         
         // Load subscriptions from IndexedDB
-        state.subscriptions = await loadSubscriptions();
+        state.subscriptions = await getAllSubscriptions();
         
         // Initialize UI components
         initializeUI(state);
@@ -35,22 +36,12 @@ async function initializeApp() {
         // Add event listeners
         setupEventListeners();
         
+        // Update UI with initial data
+        updateSubscriptionList();
+        
         console.log('Application initialized successfully');
     } catch (error) {
-        console.error('Failed to initialize application:', error);
-        showError('Failed to initialize application. Please refresh the page.');
-    }
-}
-
-// Load subscriptions from IndexedDB
-async function loadSubscriptions() {
-    try {
-        const db = await openDB();
-        const subscriptions = await db.getAll('subscriptions');
-        return subscriptions;
-    } catch (error) {
-        console.error('Error loading subscriptions:', error);
-        return [];
+        errorHandler.handleError(error, ErrorTypes.DATABASE);
     }
 }
 
@@ -93,23 +84,27 @@ function toggleTheme() {
 async function handleSubscriptionSubmit(event) {
     event.preventDefault();
     
-    const formData = new FormData(event.target);
-    const subscription = {
-        id: Date.now().toString(),
-        name: formData.get('subscription-name'),
-        amount: parseFloat(formData.get('subscription-amount')),
-        currency: formData.get('subscription-currency'),
-        billingCycle: formData.get('billing-cycle'),
-        dueDate: formData.get('due-date'),
-        category: formData.get('category'),
-        notes: formData.get('notes'),
-        createdAt: new Date().toISOString()
-    };
-    
     try {
+        const formData = new FormData(event.target);
+        const subscription = {
+            id: Date.now().toString(),
+            name: formData.get('subscription-name'),
+            amount: parseFloat(formData.get('subscription-amount')),
+            currency: formData.get('subscription-currency'),
+            billingCycle: formData.get('billing-cycle'),
+            dueDate: formData.get('due-date'),
+            category: formData.get('category'),
+            notes: formData.get('notes'),
+            createdAt: new Date().toISOString()
+        };
+        
+        // Validate required fields
+        if (!subscription.name || !subscription.amount || !subscription.dueDate) {
+            throw new Error('Please fill in all required fields');
+        }
+        
         // Save to IndexedDB
-        const db = await openDB();
-        await db.add('subscriptions', subscription);
+        await addSubscription(subscription);
         
         // Update state
         state.subscriptions.push(subscription);
@@ -126,15 +121,25 @@ async function handleSubscriptionSubmit(event) {
         // Show success message
         showSuccess('Subscription added successfully');
     } catch (error) {
-        console.error('Error adding subscription:', error);
-        showError('Failed to add subscription. Please try again.');
+        errorHandler.handleError(error, ErrorTypes.VALIDATION);
     }
 }
 
 // Update subscription list in UI
 function updateSubscriptionList() {
     const container = document.getElementById('subscriptions-container');
+    if (!container) return;
+    
     container.innerHTML = '';
+    
+    if (state.subscriptions.length === 0) {
+        container.innerHTML = `
+            <div class="empty-state">
+                <p>No subscriptions yet. Click the "Add Subscription" button to get started.</p>
+            </div>
+        `;
+        return;
+    }
     
     state.subscriptions.forEach(subscription => {
         const card = createSubscriptionCard(subscription);
@@ -149,12 +154,13 @@ function createSubscriptionCard(subscription) {
     card.innerHTML = `
         <div class="subscription-header">
             <h3>${subscription.name}</h3>
-            <span class="amount">${subscription.currency} ${subscription.amount}</span>
+            <span class="amount">${subscription.currency} ${subscription.amount.toFixed(2)}</span>
         </div>
         <div class="subscription-details">
             <p><strong>Billing Cycle:</strong> ${subscription.billingCycle}</p>
             <p><strong>Due Date:</strong> ${formatDate(subscription.dueDate)}</p>
             <p><strong>Category:</strong> ${subscription.category}</p>
+            ${subscription.notes ? `<p><strong>Notes:</strong> ${subscription.notes}</p>` : ''}
         </div>
         <div class="subscription-actions">
             <button class="btn-secondary edit-btn" data-id="${subscription.id}">Edit</button>
@@ -177,14 +183,20 @@ function formatDate(dateString) {
 
 // Show error message
 function showError(message) {
-    // Implement error notification
-    console.error(message);
+    errorHandler.handleError(new Error(message), ErrorTypes.UNKNOWN);
 }
 
 // Show success message
 function showSuccess(message) {
-    // Implement success notification
-    console.log(message);
+    const notification = document.createElement('div');
+    notification.className = 'success-notification';
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 
 // Initialize the app when DOM is loaded
